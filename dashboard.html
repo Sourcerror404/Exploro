@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exploro | Portal Login</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Supabase integration -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabaseService.js"></script>
+    <!-- Ionicons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+<body class="login-page">
+    <div class="bg-animated">
+        <div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
+        <div class="grid-overlay"></div>
+    </div>
+
+    <div class="login-container">
+        <div class="login-brand">
+            <div class="brand-icon-lg"><ion-icon name="compass"></ion-icon></div>
+            <h1>EXPLORO</h1>
+            <p>Platform Portal — Choose your role to continue</p>
+        </div>
+
+        <div class="role-cards">
+            <button class="role-card" onclick="loginAs('user')" id="card-user">
+                <div class="role-card-icon" style="background:rgba(124,58,237,.2);border-color:rgba(124,58,237,.4)">
+                    <ion-icon name="person-outline"></ion-icon>
+                </div>
+                <h3>Explorer</h3>
+                <p>Post photos, host events, earn coins based on reach & community engagement</p>
+                <div class="role-perks">
+                    <span>📸 Post & Earn</span>
+                    <span>🎪 Host Events</span>
+                    <span>🪙 Coin Rewards</span>
+                </div>
+                <div class="role-cta">Enter as Explorer <ion-icon name="arrow-forward"></ion-icon></div>
+            </button>
+
+            <button class="role-card role-card-business" onclick="loginAs('business')" id="card-business">
+                <div class="role-card-icon" style="background:rgba(249,115,22,.2);border-color:rgba(249,115,22,.4)">
+                    <ion-icon name="business-outline"></ion-icon>
+                </div>
+                <h3>Business Owner</h3>
+                <p>Create publicity campaigns, get community-driven marketing, earn revenue from viral reach</p>
+                <div class="role-perks">
+                    <span>📣 Campaigns</span>
+                    <span>💰 Revenue</span>
+                    <span>📊 Analytics</span>
+                </div>
+                <div class="role-cta" style="color:var(--accent)">Enter as Business <ion-icon name="arrow-forward"></ion-icon></div>
+            </button>
+
+            <button class="role-card role-card-admin" onclick="loginAs('admin')" id="card-admin">
+                <div class="role-card-icon" style="background:rgba(6,182,212,.2);border-color:rgba(6,182,212,.4)">
+                    <ion-icon name="shield-checkmark-outline"></ion-icon>
+                </div>
+                <h3>Admin</h3>
+                <p>Full platform control — moderate content, verify businesses, manage payouts & analytics</p>
+                <div class="role-perks">
+                    <span>🔧 Moderation</span>
+                    <span>✅ Verification</span>
+                    <span>💳 Payouts</span>
+                </div>
+                <div class="role-cta" style="color:var(--teal)">Enter as Admin <ion-icon name="arrow-forward"></ion-icon></div>
+            </button>
+        </div>
+
+        <div class="login-footer">
+            <a href="index.html">← Back to Exploro App</a>
+        </div>
+    </div>
+
+    <script>
+        function loginAs(role) {
+            const card = document.getElementById('card-' + role);
+            card.classList.add('loading');
+            setTimeout(() => {
+                sessionStorage.setItem('exploro_role', role);
+                window.location.href = role + '-dashboard.html';
+            }, 700);
+        }
+    </script>
+</body>
+</html>

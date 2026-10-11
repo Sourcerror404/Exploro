@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exploro | Discover. Snap. Revive.</title>
+    <meta name="description" content="Discover hidden gems, snap them to earn XP, and vote to revive struggling local businesses with Exploro.">
+    <link rel="stylesheet" href="styles.css?v=3">
+    <!-- Leaflet for Live Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Supabase integration -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabaseService.js?v=3"></script>
+    <!-- Ionicons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animated">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="grid-overlay"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar glass">
+        <div class="nav-container">
+            <div class="brand">
+                <div class="brand-icon"><ion-icon name="compass"></ion-icon></div>
+                <span class="brand-name">EXPLORO</span>
+            </div>
+            <div class="nav-links">
+                <a href="#" data-view="discover-view" class="active">Discover</a>
+                <a href="#" data-view="snapsnap-view">SnapSnap</a>
+                <a href="#" data-view="rewards-view">Rewards</a>
+            </div>
+            <div class="nav-actions">
+                <div class="xp-badge">
+                    <ion-icon name="flash"></ion-icon>
+                    <span id="xp-count">1,250 XP</span>
+                </div>
+                <div class="profile-avatar">
+                    <img src="https://i.pravatar.cc/150?img=11" alt="Profile">
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main App -->
+    <main class="app-container">
+
+        <!-- ===== DISCOVER VIEW ===== -->
+        <section id="discover-view" class="view active-view fade-in">
+            <header class="view-header">
+                <div class="header-content">
+                    <h1>Discover Places 🗺️</h1>
+                    <p>Find hidden gems. Revive local legends.</p>
+                </div>
+                <div class="search-bar glass">
+                    <ion-icon name="search-outline"></ion-icon>
+                    <input type="text" id="search-input" placeholder="Search places...">
+                </div>
+            </header>
+            
+            <div style="position:relative;">
+                <div class="map-container glass-card mt-2" id="map-view">
+                    <!-- Leaflet map will be mounted here -->
+                </div>
+                
+                <div class="map-filter-container" style="position:absolute; top: 30px; right: 16px; z-index: 1000;">
+                    <button id="map-filter-btn" class="glass-card" style="padding:10px 16px; background:#111; color:var(--accent); border:1px solid var(--accent); cursor:pointer; font-weight:700; border-radius:20px; display:flex; align-items:center; gap:8px; box-shadow:0 4px 15px rgba(0,0,0,0.5); transition:all 0.2s;">
+                        <ion-icon name="funnel"></ion-icon> Filter Vibe
+                    </button>
+                    <div id="map-filter-dropdown" class="glass-card" style="display:none; position:absolute; top:calc(100% + 8px); right:0; width:180px; background:#000; border:1px solid var(--glass-border); border-radius:12px; overflow:hidden; box-shadow:0 10px 25px rgba(0,0,0,0.7);">
+                        <div class="filter-option" data-tag="all">All Vibes</div>
+                        <div class="filter-option" data-tag="hidden gem">💎 Hidden Gem</div>
+                        <div class="filter-option" data-tag="must visit">🌟 Must Visit</div>
+                        <div class="filter-option" data-tag="needs love">💜 Needs Love</div>
+                        <div class="filter-option" data-tag="best vibes">✨ Best Vibes</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="categories-scroll mt-4">
+                <button class="cat-chip active" data-cat="all"><ion-icon name="apps-outline"></ion-icon> All</button>
+                <button class="cat-chip" data-cat="restaurant"><ion-icon name="restaurant-outline"></ion-icon> Eat</button>
+                <button class="cat-chip" data-cat="cafe"><ion-icon name="cafe-outline"></ion-icon> Cafe</button>
+                <button class="cat-chip" data-cat="attraction"><ion-icon name="telescope-outline"></ion-icon> Explore</button>
+                <button class="cat-chip" data-cat="nature"><ion-icon name="leaf-outline"></ion-icon> Nature</button>
+                <button class="cat-chip" data-cat="nightlife"><ion-icon name="moon-outline"></ion-icon> Nightlife</button>
+            </div>
+
+            <!-- Revival Alert Banner -->
+            <div class="revival-banner glass-card">
+                <div class="revival-banner-icon">🔥</div>
+                <div>
+                    <strong>Underground Sushi Bar is trending!</strong>
+                    <p>87% revival score — the community is bringing it back to life.</p>
+                </div>
+                <button class="btn-glow" onclick="switchView('snapsnap-view')">Snap It</button>
+            </div>
+
+            <div class="section-heading mt-4">
+                <h2>✨ Featured Places</h2>
+                <a href="#" class="see-all">See all</a>
+            </div>
+
+            <div class="featured-grid" id="featured-grid"></div>
+
+            <div class="section-heading mt-4">
+                <h2>📍 Nearby</h2>
+            </div>
+            <div class="places-grid" id="places-list"></div>
+
+        </section>
+
+        <!-- ===== SNAPSNAP VIEW ===== -->
+        <section id="snapsnap-view" class="view fade-in">
+            <div class="snapsnap-layout">
+
+                <!-- Left: Upload Column -->
+                <div class="upload-column">
+                    <div class="upload-header">
+                        <h1>SnapSnap 📸</h1>
+                        <p>Geotag a place. Vote to revive it.</p>
+                    </div>
+
+                    <!-- Upload Card -->
+                    <div class="upload-card glass-card" id="upload-state">
+                        <!-- Unified Snap Form -->
+                        <div class="form-group row-box">
+                            <label><ion-icon name="camera-outline"></ion-icon> Photo</label>
+                            <div id="dropzone" class="dropzone compact-dropzone">
+                                <input type="file" id="file-input" accept="image/*" hidden>
+                                <div class="dropzone-inner" id="dropzone-inner" style="display:flex; flex-direction:column; align-items:center;">
+                                    <ion-icon name="image-outline" style="font-size:32px; color:var(--text-muted);"></ion-icon>
+                                    <p style="margin:5px 0 0 0; font-size:14px; color:var(--text-muted);">Click to upload photo</p>
+                                </div>
+                                <img id="preview-image" src="" alt="Preview" style="display:none; width:100%; height:100%; object-fit:cover; border-radius:12px;">
+                            </div>
+                        </div>
+
+                        <div class="form-group row-box">
+                            <label><ion-icon name="location-outline"></ion-icon> Location</label>
+                            <input type="text" id="place-name-input" class="glass-input" placeholder="Name this discovery (e.g. Secret Beach)..." autocomplete="off" style="margin-bottom:10px;">
+                            <div id="snap-map" style="width:100%; height:140px; border-radius:12px; border:1px solid var(--border); z-index:1;"></div>
+                            <p style="font-size: 12px; color: var(--accent); margin-top: 8px; text-align:right; font-weight:600;"><ion-icon name="move-outline"></ion-icon> Drag map pin to set coordinates</p>
+                        </div>
+
+                        <div class="form-group row-box">
+                            <label><ion-icon name="sparkles-outline"></ion-icon> Vibe</label>
+                            <div class="mood-tags" style="margin-bottom:12px;">
+                                <button class="mood-chip" data-mood="hidden gem">💎 Hidden Gem</button>
+                                <button class="mood-chip" data-mood="must visit">🌟 Must Visit</button>
+                                <button class="mood-chip" data-mood="needs love">💜 Needs Love</button>
+                                <button class="mood-chip" data-mood="best vibes">✨ Best Vibes</button>
+                            </div>
+                            <input type="text" id="snap-caption" class="glass-input" placeholder="Write a short caption..." autocomplete="off">
+                        </div>
+
+                        <button class="btn-primary w-100 btn-submit-snap" id="submit-snap-btn" style="margin-top:10px;">
+                            <ion-icon name="paper-plane-outline"></ion-icon> Send to Live Map
+                        </button>
+
+                        <!-- Processing overlay -->
+                        <div class="upload-overlay" id="upload-overlay" style="display:none;">
+                            <div class="spinner"></div>
+                            <h3>Geotagging & verifying...</h3>
+                            <p class="text-muted">Analyzing your location and snap</p>
+                        </div>
+
+                        <!-- Success overlay -->
+                        <div class="success-overlay" id="success-overlay" style="display:none;">
+                            <div class="success-burst">
+                                <ion-icon name="checkmark-circle" class="text-success big-icon"></ion-icon>
+                            </div>
+                            <h2>Snap Posted! 🎉</h2>
+                            <p class="text-accent font-bold mt-2 xp-toast">+100 XP Earned</p>
+                            <p class="text-muted mt-1">Your snap is now live in the feed for the community to vote on.</p>
+                            <button class="btn-primary mt-4" id="new-snap-btn">
+                                <ion-icon name="add-circle-outline"></ion-icon> Post Another
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Feed Column -->
+                <div class="feed-column">
+                    <div class="feed-header">
+                        <h2>Community Feed</h2>
+                        <div class="feed-filters">
+                            <button class="feed-filter active" data-filter="trending">🔥 Trending</button>
+                            <button class="feed-filter" data-filter="recent">🆕 Recent</button>
+                            <button class="feed-filter" data-filter="revival">💜 Needs Revival</button>
+                        </div>
+                    </div>
+
+                    <div class="snap-feed" id="snap-feed">
+                        <!-- Snap cards generated by JS -->
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ===== REWARDS VIEW ===== -->
+        <section id="rewards-view" class="view fade-in">
+            <header class="view-header">
+                <div class="header-content">
+                    <h1>Rewards 🎁</h1>
+                    <p>Spend your XP on exclusive perks</p>
+                </div>
+                <div class="xp-big-badge">
+                    <ion-icon name="flash"></ion-icon>
+                    <span id="xp-rewards-count">1,250</span> XP Available
+                </div>
+            </header>
+            <div class="rewards-grid" id="rewards-grid"></div>
+        </section>
+
+    </main>
+
+    <!-- Place Detail Modal -->
+    <div id="place-modal" class="modal-overlay">
+        <div class="modal-content glass">
+            <button class="close-modal"><ion-icon name="close"></ion-icon></button>
+            <div class="modal-hero" id="modal-hero">
+                <div class="modal-gradient"></div>
+                <span class="badge" id="modal-badge">Category</span>
+                <div class="revival-meter-modal" id="modal-revival-meter"></div>
+            </div>
+            <div class="modal-body">
+                <div class="modal-title-row">
+                    <div>
+                        <h2 id="modal-title">Place Name</h2>
+                        <p class="modal-location"><ion-icon name="location-outline"></ion-icon> <span id="modal-location">Location</span></p>
+                    </div>
+                    <div class="modal-xp" id="modal-xp">+100 XP</div>
+                </div>
+                <div class="modal-stats">
+                    <div class="stat"><ion-icon name="star" class="text-warning"></ion-icon> <span id="modal-rating">4.8</span></div>
+                    <div class="stat-div"></div>
+                    <div class="stat"><ion-icon name="heart" class="text-error"></ion-icon> <span id="modal-snaps">0 Snaps</span></div>
+                    <div class="stat-div"></div>
+                    <div class="stat"><ion-icon name="trending-up" class="text-success"></ion-icon> <span id="modal-revival">0% Revival</span></div>
+                </div>
+                <div class="modal-tags" id="modal-tags"></div>
+                <h3 class="mt-3">About</h3>
+                <p id="modal-desc" class="modal-desc">Description goes here.</p>
+                <div id="modal-gallery" class="modal-gallery"></div>
+                <div class="modal-actions mt-4">
+                    <button class="btn-primary flex-1" id="checkin-btn">
+                        <ion-icon name="location"></ion-icon> Check In & Earn XP
+                    </button>
+                    <button class="btn-secondary" id="snap-from-modal-btn">
+                        <ion-icon name="camera-outline"></ion-icon> Snap It
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js?v=3"></script>
+</body>
+</html>
